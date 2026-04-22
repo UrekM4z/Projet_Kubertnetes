@@ -16,6 +16,25 @@ spec:
       - name: frontend
         image: {{ .Values.frontend.image }}
         imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
         ports:
         - containerPort: 80
 ---
@@ -29,3 +48,36 @@ spec:
   ports:
   - port: 80
     targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend
+  annotations:
+    cert-manager.io/cluster-issuer: "notaire-local"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - localhost
+    secretName: frontend-tls-secret
+  rules:
+  - host: localhost
+    http:
+      paths:
+      # 1. On envoie les requêtes de données vers le Backend
+      - path: /api   
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      # 2. On envoie l'interface graphique vers le Frontend
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
