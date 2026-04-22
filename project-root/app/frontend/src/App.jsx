@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 //import './App.css'
 
-const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:8000'
+const API_BASE_URL = '';
 
 function App() {
   const [tasks, setTasks] = useState([])
@@ -40,7 +40,7 @@ function App() {
       if (!response.ok) throw new Error('Failed to add task')
       
       setNewTask('')
-      fetchTasks() // Refresh list
+      fetchTasks()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -57,7 +57,7 @@ function App() {
       })
       
       if (!response.ok) throw new Error('Failed to delete task')
-      fetchTasks() // Refresh list
+      fetchTasks()
     } catch (err) {
       setError(err.message)
     } finally {

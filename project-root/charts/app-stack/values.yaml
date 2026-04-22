@@ -1,0 +1,10 @@
+replicaCount: 2
+backend:
+  image: garoh/backend-tasks:v1
+  port: 8000
+frontend:
+  image: garoh/frontend-tasks:v1
+  port: 80
+database:
+  name: db-production
+  instances: 3

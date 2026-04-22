@@ -7,17 +7,14 @@ import os
 import logging
 from contextlib import asynccontextmanager
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database connection settings
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
     "postgresql://postgres:password@postgres:5432/tasktracker"
 )
 
-# Pydantic models
 class TaskBase(BaseModel):
     title: str
 
@@ -30,7 +27,6 @@ class Task(TaskBase):
     class Config:
         from_attributes = True
 
-# Global database connection pool
 pool = None
 
 @asynccontextmanager
@@ -38,7 +34,6 @@ async def lifespan(app: FastAPI):
     """Handle startup and shutdown events"""
     global pool
     
-    # Startup: Create database connection pool
     try:
         pool = await asyncpg.create_pool(
             DATABASE_URL,
@@ -48,7 +43,6 @@ async def lifespan(app: FastAPI):
         )
         logger.info("Database connection pool created successfully")
         
-        # Create tasks table if it doesn't exist
         await create_tables()
         
     except Exception as e:
@@ -57,7 +51,6 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown: Close database connection pool
     if pool:
         await pool.close()
         logger.info("Database connection pool closed")
@@ -72,7 +65,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
